@@ -79,10 +79,12 @@ class BluetoothViewModel @Inject constructor(
 
     fun startScan() {
         bluetoothController.startDiscovery()
+        _state.update { it.copy(isScanning = true) }
     }
 
     fun stopScan() {
         bluetoothController.stopDiscovery()
+        _state.update { it.copy(isScanning = false) }
     }
 
     private fun Flow<ConnectionResult>.listen(): Job {
