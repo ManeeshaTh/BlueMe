@@ -1,5 +1,6 @@
 package com.plcoding.bluetoothchat.presentation
 
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.plcoding.bluetoothchat.domain.chat.BluetoothController
@@ -69,6 +70,17 @@ class BluetoothViewModel @Inject constructor(
     fun sendMessage(message: String) {
         viewModelScope.launch {
             val bluetoothMessage = bluetoothController.trySendMessage(message)
+            if(bluetoothMessage != null) {
+                _state.update { it.copy(
+                    messages = it.messages + bluetoothMessage
+                ) }
+            }
+        }
+    }
+
+    fun sendImage(imageUri: Uri) {
+        viewModelScope.launch {
+            val bluetoothMessage = bluetoothController.trySendImage(imageUri)
             if(bluetoothMessage != null) {
                 _state.update { it.copy(
                     messages = it.messages + bluetoothMessage
