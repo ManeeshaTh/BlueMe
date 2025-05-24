@@ -211,15 +211,28 @@ class AndroidBluetoothController(
             return null
         }
 
-        val bluetoothMessage = BluetoothMessage.ImageMessage(
-            imageUri = imageUri.toString(),
-            senderName = bluetoothAdapter?.name ?: "Unknown name",
-            isFromLocalUser = true
-        )
+        try {
+            val inputStream = context.contentResolver.openInputStream(imageUri)
+            val imageData = inputStream?.readBytes()
+            inputStream?.close()
 
-        dataTransferService?.sendMessage(bluetoothMessage.toByteArray())
+            val fileName = imageUri.lastPathSegment ?: "image_${System.currentTimeMillis()}.jpg"
 
-        return bluetoothMessage
+            val bluetoothMessage = BluetoothMessage.ImageMessage(
+                imageUri = imageUri.toString(),
+                imageData = imageData,
+                fileName = fileName,
+                senderName = bluetoothAdapter?.name ?: "Unknown name",
+                isFromLocalUser = true
+            )
+
+            dataTransferService?.sendMessage(bluetoothMessage.toByteArray())
+
+            return bluetoothMessage
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return null
+        }
     }
 
     override fun closeConnection() {
