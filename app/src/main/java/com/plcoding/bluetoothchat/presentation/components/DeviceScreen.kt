@@ -224,7 +224,7 @@ fun DeviceItem(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = device.name ?: "(No name)",
+                text = device.name ?: "Unnamed Device",
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Medium,
                 color = Color.Black
