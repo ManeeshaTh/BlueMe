@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    
+    <path
+        android:fillColor="#2196F3"
+        android:pathData="M0,0h108v108h-108z"/>
+    
+    <!-- Bluetooth symbol -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M54,25L54,83L70,67L58,54L70,41L54,25M54,32.66L62.83,41L54,49.83L54,32.66M54,58.17L62.83,67L54,75.34L54,58.17"/>
+    
+    <!-- Decorative circle -->
+    <path
+        android:fillColor="#90CAF9"
+        android:pathData="M54,54m-40,0a40,40 0,1 1,80 0a40,40 0,1 1,-80 0"
+        android:fillAlpha="0.3"/>
+</vector> 
