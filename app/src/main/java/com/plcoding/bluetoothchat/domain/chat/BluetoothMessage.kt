@@ -1,10 +1,13 @@
 package com.plcoding.bluetoothchat.domain.chat
 
+import java.util.Date
+
 sealed class BluetoothMessage {
     data class TextMessage(
         val message: String,
         val senderName: String,
-        val isFromLocalUser: Boolean
+        val isFromLocalUser: Boolean,
+        val timestamp: Date = Date()
     ) : BluetoothMessage()
 
     data class ImageMessage(
@@ -12,7 +15,8 @@ sealed class BluetoothMessage {
         val imageData: ByteArray? = null,
         val fileName: String? = null,
         val senderName: String,
-        val isFromLocalUser: Boolean
+        val isFromLocalUser: Boolean,
+        val timestamp: Date = Date()
     ) : BluetoothMessage() {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
