@@ -18,8 +18,8 @@ val SurfaceLight = Color(0xFFFAFAFA)
 val OnSurfaceDark = Color(0xFFE0E0E0)
 val OnSurfaceLight = Color(0xFF121212)
 
-val DarkSlateGrey = Color(0xFF27474e)
-val DarkSlateGreyLight = Color(0xFF36626B)
-val Plum = Color(0xFF7d387d)
-val OldRose = Color(0xFFcd8b76)
-val Vanilla = Color(0xFFe1d89f)
+// Chat Bubble Colors
+val SenderBubble = Color(0xFF0084FF)  // Facebook Messenger-like blue
+val ReceiverBubble = Color(0xFFE8F5FE)  // Light blue background
+val SenderText = Color(0xFFFFFFFF)  // White text for sender
+val ReceiverText = Color(0xFF1C1E21)  // Dark text for receiver
