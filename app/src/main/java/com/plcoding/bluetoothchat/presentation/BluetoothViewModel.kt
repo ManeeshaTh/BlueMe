@@ -123,6 +123,7 @@ class BluetoothViewModel @Inject constructor(
 
     fun sendMessage(message: String) {
         viewModelScope.launch {
+            val timestamp = Date()
             val bluetoothMessage = bluetoothController.trySendMessage(message)
             if(bluetoothMessage != null) {
                 // Save message to database
@@ -132,7 +133,7 @@ class BluetoothViewModel @Inject constructor(
                             message = message,
                             senderName = (bluetoothMessage as BluetoothMessage.TextMessage).senderName,
                             isFromLocalUser = true,
-                            timestamp = Date(),
+                            timestamp = timestamp,
                             deviceAddress = address
                         )
                     )
@@ -146,6 +147,7 @@ class BluetoothViewModel @Inject constructor(
 
     fun sendImage(imageUri: Uri) {
         viewModelScope.launch {
+            val timestamp = Date()
             val bluetoothMessage = bluetoothController.trySendImage(imageUri)
             if(bluetoothMessage != null) {
                 // Save image message to database
@@ -155,9 +157,11 @@ class BluetoothViewModel @Inject constructor(
                             message = imageUri.toString(),
                             senderName = (bluetoothMessage as BluetoothMessage.ImageMessage).senderName,
                             isFromLocalUser = true,
-                            timestamp = Date(),
+                            timestamp = timestamp,
                             deviceAddress = address,
-                            messageType = "IMAGE"
+                            messageType = "IMAGE",
+                            imageData = bluetoothMessage.imageData,
+                            fileName = bluetoothMessage.fileName
                         )
                     )
                 }

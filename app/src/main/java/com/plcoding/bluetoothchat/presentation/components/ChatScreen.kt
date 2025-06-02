@@ -6,13 +6,13 @@ import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.Text
-import androidx.compose.material.TextField
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Add
@@ -23,11 +23,19 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.plcoding.bluetoothchat.R
 import com.plcoding.bluetoothchat.domain.chat.BluetoothMessage
 import com.plcoding.bluetoothchat.presentation.BluetoothUiState
+import com.plcoding.bluetoothchat.ui.theme.*
 
 @Composable
 fun ChatScreen(
@@ -51,24 +59,52 @@ fun ChatScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(SurfaceLight)
     ) {
+        // Header
         Row(
             modifier = Modifier
                 .fillMaxWidth()
+                .background(Blue500)
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = "Messages",
-                modifier = Modifier.weight(1f)
-            )
-            IconButton(onClick = onDisconnect) {
+            // App Logo and Name
+            Row(
+                modifier = Modifier.weight(1f),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Image(
+                    imageVector = ImageVector.vectorResource(id = R.drawable.ic_blume_launcher),
+                    contentDescription = "BluMe Logo",
+                    modifier = Modifier
+                        .size(32.dp)
+                        .padding(end = 8.dp)
+                )
+                Text(
+                    text = "Chat",
+                    color = Color.White,
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            
+            // Disconnect Button
+            IconButton(
+                onClick = onDisconnect,
+                modifier = Modifier
+                    .clip(CircleShape)
+                    .background(Color.White.copy(alpha = 0.2f))
+            ) {
                 Icon(
                     imageVector = Icons.Default.Close,
-                    contentDescription = "Disconnect"
+                    contentDescription = "Disconnect",
+                    tint = Color.White
                 )
             }
         }
+
+        // Messages List
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
@@ -87,42 +123,79 @@ fun ChatScreen(
                                 when (message) {
                                     is BluetoothMessage.TextMessage -> if (message.isFromLocalUser) Alignment.End else Alignment.Start
                                     is BluetoothMessage.ImageMessage -> if (message.isFromLocalUser) Alignment.End else Alignment.Start
-                                    else -> Alignment.Start
                                 }
                             )
                     )
                 }
             }
         }
-        Row(
+
+        // Message Input Area
+        Card(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
+            elevation = 4.dp,
+            shape = RoundedCornerShape(24.dp),
+            backgroundColor = Color.White
         ) {
-            IconButton(onClick = { imagePicker.launch("image/*") }) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = "Pick image"
-                )
-            }
-            TextField(
-                value = message.value,
-                onValueChange = { message.value = it },
-                modifier = Modifier.weight(1f),
-                placeholder = {
-                    Text(text = "Message")
+            Row(
+                modifier = Modifier
+                    .padding(4.dp)
+                    .padding(end = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(
+                    onClick = { imagePicker.launch("image/*") },
+                    modifier = Modifier
+                        .padding(4.dp)
+                        .clip(CircleShape)
+                        .background(Blue500.copy(alpha = 0.1f))
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = "Pick image",
+                        tint = Blue500
+                    )
                 }
-            )
-            IconButton(onClick = {
-                onSendMessage(message.value)
-                message.value = ""
-                keyboardController?.hide()
-            }) {
-                Icon(
-                    imageVector = Icons.Default.Send,
-                    contentDescription = "Send message"
+                
+                TextField(
+                    value = message.value,
+                    onValueChange = { message.value = it },
+                    modifier = Modifier.weight(1f),
+                    placeholder = {
+                        Text(
+                            text = "Type a message",
+                            color = Color.Gray
+                        )
+                    },
+                    colors = TextFieldDefaults.textFieldColors(
+                        backgroundColor = Color.Transparent,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        cursorColor = Blue500,
+                        textColor = Color.DarkGray
+                    )
                 )
+                
+                IconButton(
+                    onClick = {
+                        if (message.value.isNotBlank()) {
+                            onSendMessage(message.value)
+                            message.value = ""
+                            keyboardController?.hide()
+                        }
+                    },
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .background(if (message.value.isNotBlank()) Blue500 else Color.Gray)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Send,
+                        contentDescription = "Send message",
+                        tint = Color.White
+                    )
+                }
             }
         }
     }

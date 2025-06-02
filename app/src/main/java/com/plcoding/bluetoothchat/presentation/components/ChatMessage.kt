@@ -13,20 +13,22 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.plcoding.bluetoothchat.domain.chat.BluetoothMessage
-import com.plcoding.bluetoothchat.ui.theme.BluetoothChatTheme
-import com.plcoding.bluetoothchat.ui.theme.OldRose
-import com.plcoding.bluetoothchat.ui.theme.Vanilla
+import com.plcoding.bluetoothchat.ui.theme.*
 import java.io.File
 import java.io.FileOutputStream
+import java.text.SimpleDateFormat
+import java.util.*
 
 @Composable
 fun ChatMessage(
@@ -43,68 +45,131 @@ fun ChatMessage(
         is BluetoothMessage.ImageMessage -> message.senderName
     }
 
+    val timestamp = when (message) {
+        is BluetoothMessage.TextMessage -> message.timestamp
+        is BluetoothMessage.ImageMessage -> message.timestamp
+    }
+
+    val timeFormat = remember { SimpleDateFormat("HH:mm", Locale.getDefault()) }
+    val formattedTime = remember(timestamp) { timeFormat.format(timestamp) }
+
     val context = LocalContext.current
     var showSaveButton by remember { mutableStateOf(false) }
 
     Column(
         modifier = modifier
-            .clip(
-                RoundedCornerShape(
-                    topStart = if (isFromLocalUser) 15.dp else 0.dp,
-                    topEnd = 15.dp,
-                    bottomStart = 15.dp,
-                    bottomEnd = if (isFromLocalUser) 0.dp else 15.dp
-                )
-            )
-            .background(
-                if (isFromLocalUser) OldRose else Vanilla
-            )
-            .padding(16.dp)
+            .padding(horizontal = 8.dp, vertical = 4.dp)
+            .fillMaxWidth()
     ) {
-        Text(
-            text = senderName,
-            fontSize = 10.sp,
-            color = Color.Black
-        )
-        when (message) {
-            is BluetoothMessage.TextMessage -> {
+        Column(
+            modifier = Modifier
+                .align(if (isFromLocalUser) Alignment.End else Alignment.Start)
+        ) {
+            // Timestamp above message for sender's messages
+            if (isFromLocalUser) {
                 Text(
-                    text = message.message,
-                    color = Color.Black,
-                    modifier = Modifier.widthIn(max = 250.dp)
+                    text = formattedTime,
+                    fontSize = 10.sp,
+                    color = Color.Gray,
+                    modifier = Modifier
+                        .align(Alignment.End)
+                        .padding(bottom = 2.dp)
                 )
             }
-            is BluetoothMessage.ImageMessage -> {
-                Box(
-                    modifier = Modifier
-                        .widthIn(max = 250.dp)
-                        .heightIn(max = 250.dp)
-                ) {
-                    Image(
-                        painter = rememberAsyncImagePainter(
-                            ImageRequest.Builder(context)
-                                .data(
-                                    if (message.isFromLocalUser) message.imageUri
-                                    else message.imageData
-                                )
-                                .build()
-                        ),
-                        contentDescription = "Shared image",
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Fit
+            
+            Column(
+                modifier = Modifier
+                    .shadow(
+                        elevation = 2.dp,
+                        shape = RoundedCornerShape(
+                            topStart = if (isFromLocalUser) 16.dp else 2.dp,
+                            topEnd = if (isFromLocalUser) 2.dp else 16.dp,
+                            bottomStart = 16.dp,
+                            bottomEnd = 16.dp
+                        )
                     )
-                    
-                    if (!message.isFromLocalUser && message.imageData != null) {
-                        TextButton(
-                            onClick = {
-                                saveImageToGallery(context, message.imageData, message.fileName ?: "received_image.jpg")
-                            },
-                            modifier = Modifier.align(Alignment.TopEnd)
+                    .clip(
+                        RoundedCornerShape(
+                            topStart = if (isFromLocalUser) 16.dp else 2.dp,
+                            topEnd = if (isFromLocalUser) 2.dp else 16.dp,
+                            bottomStart = 16.dp,
+                            bottomEnd = 16.dp
+                        )
+                    )
+                    .background(
+                        if (isFromLocalUser) SenderBubble else ReceiverBubble
+                    )
+                    .padding(12.dp)
+                    .widthIn(max = 280.dp)
+            ) {
+                Text(
+                    text = senderName,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = if (isFromLocalUser) SenderText.copy(alpha = 0.7f) else ReceiverText.copy(alpha = 0.7f)
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                when (message) {
+                    is BluetoothMessage.TextMessage -> {
+                        Text(
+                            text = message.message,
+                            color = if (isFromLocalUser) SenderText else ReceiverText,
+                            fontSize = 16.sp
+                        )
+                    }
+                    is BluetoothMessage.ImageMessage -> {
+                        Box(
+                            modifier = Modifier
+                                .widthIn(max = 250.dp)
+                                .heightIn(max = 250.dp)
                         ) {
-                            Text("Save", color = Color.White)
+                            Image(
+                                painter = rememberAsyncImagePainter(
+                                    ImageRequest.Builder(context)
+                                        .data(
+                                            if (message.isFromLocalUser) message.imageUri
+                                            else message.imageData
+                                        )
+                                        .build()
+                                ),
+                                contentDescription = "Shared image",
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .clip(RoundedCornerShape(8.dp)),
+                                contentScale = ContentScale.Fit
+                            )
+                            
+                            if (!message.isFromLocalUser && message.imageData != null) {
+                                Button(
+                                    onClick = {
+                                        saveImageToGallery(context, message.imageData, message.fileName ?: "received_image.jpg")
+                                    },
+                                    modifier = Modifier
+                                        .align(Alignment.TopEnd)
+                                        .padding(4.dp),
+                                    colors = ButtonDefaults.buttonColors(
+                                        backgroundColor = Blue500,
+                                        contentColor = Color.White
+                                    ),
+                                    shape = RoundedCornerShape(8.dp)
+                                ) {
+                                    Text("Save", fontSize = 12.sp)
+                                }
+                            }
                         }
                     }
                 }
+            }
+            
+            // Timestamp below message for receiver's messages
+            if (!isFromLocalUser) {
+                Text(
+                    text = formattedTime,
+                    fontSize = 10.sp,
+                    color = Color.Gray,
+                    modifier = Modifier
+                        .padding(top = 2.dp)
+                )
             }
         }
     }
