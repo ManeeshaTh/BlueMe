@@ -34,7 +34,6 @@
         android:icon="@drawable/ic_blume_launcher"
         android:roundIcon="@drawable/ic_blume_launcher"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.BluetoothChat"
         android:requestLegacyExternalStorage="true"
